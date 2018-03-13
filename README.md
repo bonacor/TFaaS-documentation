@@ -146,3 +146,12 @@ and the outcome on screen might look like
 [0.65876985]
 ```
 As a response, a floating point number is hence returned: in this specific use-case (see Luca's thesis) this means that that specific event is predicted by the trained model to be a Signal event ($>0.5$) and not a Background event. Tests done with large set of events show that the results obtainable locally with a given model are the same ones that are returned by the server via this kind of calls. Of course, for plenty of events this is not done command-line, but all event entries are passed via JSON format to the server in a unique, large client query, returning a vector of predictions. The predictions out of TFaaS will be consistent with those from the same model run locally.
+
+## parse a JSON
+
+(FIXME) to do: this part needs notes.
+```
+python parse_luca.py --fin=dataset_pro.csv
+```
+
+
