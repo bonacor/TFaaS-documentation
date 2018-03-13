@@ -1,10 +1,9 @@
-# TFaaS: how to install and run
+# TFaaS: from installation to running it for a specific use-case
 
-One Paragraph of project description goes here
+## What this doc is, what this doc is not
 
-## Getting Started
+This is not intended to be a complete, fully tested and working documentation for everything about TFaaS. This is a set of notes for anyone who is willing to look closer to how working on TFaaS might look like. These instructions should help you to get a copy of the project up and running on your local machine, just for development and testing purposes. You might need to contact vkuznet or bonacor to get more information.
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
