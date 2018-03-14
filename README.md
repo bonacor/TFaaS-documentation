@@ -1,4 +1,6 @@
-# TFaaS: from installation to running it for a specific use-case
+# TFaaS: from installation to operation
+
+TFaaS will serve predictions for trained TF models via HTTPs. 
 
 ## What this doc is, what this doc is not
 
@@ -6,11 +8,11 @@ This is not intended to be a complete, fully tested and working documentation fo
 
 ## TFaaS installation
 
-TFaaS will serve predictions for trained TF models via HTTPs. To operate it, you need to perform various steps. First one is that TFaaS needs to be installed. The code can be found [here](https://github.com/vkuznet/TFaaS).
+To operate TFaaS, you need first to install it. The code can be found [here](https://github.com/vkuznet/TFaaS).
 
 ## From Keras to Tensorflow
 
-This part assumes you have created and trained a model with Keras beforhand. This must be saved on local disk as a `.h5` file e.g. via `model.save('file_name.h5')`. The model must be converted to Tensorflow (TF) using the `keras_to_tensorflow` package, which can be found [here](https://github.com/vkuznet/keras_to_tensorflow.git). This package loads a trained keras model, freezes the nodes (converts all TF variables to TF constants), and saves the inference graph and weights into protobuf files. There are two different formats that a ProtoBuf can be saved in: text format (`.pbtxt` extension) files are in a human-readable form, which makes it nice for debugging and editing, but can get large when there is numerical data like weights stored in it; binary format (`.pb` extension)  files are a lot smaller than their text equivalents, even though they are not as readable. In our case, reference commands that are needed are e.g.:
+This part assumes you have created and trained a model with Keras beforhand. This must be saved on local disk as a `.h5` file e.g. via `model.save('file_name.h5')`. The model must be converted to Tensorflow (TF) using the `keras_to_tensorflow` package, which can be found [here](https://github.com/vkuznet/keras_to_tensorflow.git). This package loads a trained keras model, freezes the nodes (converts all TF variables to TF constants), and saves the inference graph and weights into protobuf files. There are two different formats that a ProtoBuf can be saved in: text format (`.pbtxt` extension) files are in a human-readable form, which makes it nice for debugging and editing, but can get large when there is numerical data like weights stored in it; binary format (`.pb` extension) files are a lot smaller than their text equivalents, even though they are not as readable. In our case, reference commands that are needed are e.g.:
 ```
 ./keras_to_tensorflow.py -input_model_file [your_saved_model.h5] \
                          -output_model_file [output.pb]
@@ -21,8 +23,35 @@ This file (any format) can then be used to deploy the trained model for inferenc
 
 ## Go
 
-You need to install the [Go (golang)](https://golang.org/) language on your system. To do so, the Go language package for your favorite distribution must be downloaded and installed, the `GOROOT` environment variable must be set to point to the installed go distribution, and the `GOPATH` environment varable must be set to point to your local area where you Go packages will be stored. 
+You need to install the [Go (golang)](https://golang.org/) language on your system. To do so, the Go language package for your favorite distribution must be downloaded and installed, the `GOROOT` environment variable must be set to point to the installed go distribution, and the `GOPATH` environment variable must be set to point to your local area where you Go packages will be stored. 
 
+Follow these simple instructions:
+- download Go language for your favorite distribution, grab appropriate 
+tar-ball from [here](https://golang.org/dl/)
+- setup `GOROOT` to point to isntalled go distribution, e.g.
+`export GOROOT=/usr/local/go`, and setup `GOPATH` environment
+to point to your local area where you go packages will be stored, e.g.
+`export GOPATH=/path/gopath`
+(please verify that `/path/gopath` directory exists and creates it if necessary)
+- obtain GO tensorflow library and install it on your system, see
+this [instructions](https://www.tensorflow.org/versions/master/install/install_go)
+Once installed you'll need to get go tensorflow code. It will be compiled
+against library you just downloaded and installed, please verify that
+you'll setup proper `LD_LIBRARY_PATH` (on Linux) or `DYLD_LIBRARY_PATH` (on OSX).
+To get go tensorflow librarys you just do
+```
+go get github.com/tensorflow/tensorflow/tensorflow/go
+go get github.com/tensorflow/tensorflow/tensorflow/go/op
+```
+- download necessary dependencies for `tfaas`:
+```
+go get github.com/vkuznet/x509proxy
+go get github.com/golang/protobuf
+go get github.com/sirupsen/logrus
+```
+- build `tfaas` Go server by running `make` and you'll get `tfaas` executable
+  which is ready to server your models.
+  
 ## Go TF library
 
 You need to install the Go Tensorflow library on your system. A good instruction set can be found [here](https://www.tensorflow.org/versions/master/install/install_go). Download and extract the TensorFlow C library into e.g. `/usr/local/lib` by invoking the following shell commands:
