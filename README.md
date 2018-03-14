@@ -10,51 +10,25 @@ This is not intended to be a complete, fully tested and working documentation fo
 
 To operate TFaaS, you need first to install it. The code can be found [here](https://github.com/vkuznet/TFaaS).
 
-## From Keras to Tensorflow
-
-This part assumes you have created and trained a model with Keras beforhand. This must be saved on local disk as a `.h5` file e.g. via `model.save('file_name.h5')`. The model must be converted to Tensorflow (TF) using the `keras_to_tensorflow` package, which can be found [here](https://github.com/vkuznet/keras_to_tensorflow.git). This package loads a trained keras model, freezes the nodes (converts all TF variables to TF constants), and saves the inference graph and weights into protobuf files. There are two different formats that a ProtoBuf can be saved in: text format (`.pbtxt` extension) files are in a human-readable form, which makes it nice for debugging and editing, but can get large when there is numerical data like weights stored in it; binary format (`.pb` extension) files are a lot smaller than their text equivalents, even though they are not as readable. In our case, reference commands that are needed are e.g.:
-```
-./keras_to_tensorflow.py -input_model_file [your_saved_model.h5] \
-                         -output_model_file [output.pb]
-./keras_to_tensorflow.py -input_model_file [your_saved_model.h5] \
-                         -output_model_file [output.pbtxt]
-```
-This file (any format) can then be used to deploy the trained model for inference. During freezing, other nodes of the network, which do not contribute the tensor that would contain the output predictions, are pruned (this results in a smaller, optimized network).
-
 ## Go
 
 You need to install the [Go (golang)](https://golang.org/) language on your system. To do so, the Go language package for your favorite distribution must be downloaded and installed, the `GOROOT` environment variable must be set to point to the installed go distribution, and the `GOPATH` environment variable must be set to point to your local area where you Go packages will be stored. 
 
-Follow these simple instructions:
+An attempt to guide you step by step is below:
+
 - download Go language for your favorite distribution, grab appropriate 
 tar-ball from [here](https://golang.org/dl/)
+
 - setup `GOROOT` to point to isntalled go distribution, e.g.
 `export GOROOT=/usr/local/go`, and setup `GOPATH` environment
 to point to your local area where you go packages will be stored, e.g.
 `export GOPATH=/path/gopath`
 (please verify that `/path/gopath` directory exists and creates it if necessary)
-- obtain GO tensorflow library and install it on your system, see
-this [instructions](https://www.tensorflow.org/versions/master/install/install_go)
-Once installed you'll need to get go tensorflow code. It will be compiled
-against library you just downloaded and installed, please verify that
-you'll setup proper `LD_LIBRARY_PATH` (on Linux) or `DYLD_LIBRARY_PATH` (on OSX).
-To get go tensorflow librarys you just do
-```
-go get github.com/tensorflow/tensorflow/tensorflow/go
-go get github.com/tensorflow/tensorflow/tensorflow/go/op
-```
-- download necessary dependencies for `tfaas`:
-```
-go get github.com/vkuznet/x509proxy
-go get github.com/golang/protobuf
-go get github.com/sirupsen/logrus
-```
-- build `tfaas` Go server by running `make` and you'll get `tfaas` executable
-  which is ready to server your models.
-  
-## Go TF library
 
-You need to install the Go Tensorflow library on your system. A good instruction set can be found [here](https://www.tensorflow.org/versions/master/install/install_go). Download and extract the TensorFlow C library into e.g. `/usr/local/lib` by invoking the following shell commands:
+- obtain GO tensorflow library and install it on your system, see
+these [instructions](https://www.tensorflow.org/versions/master/install/install_go).
+Basically, you need to download and extract the TensorFlow C library into 
+e.g. `/usr/local/lib` by invoking the following shell commands:
 ```
 TF_TYPE="cpu" # Change to "gpu" for GPU support
  TARGET_DIRECTORY='/usr/local'
@@ -63,18 +37,27 @@ TF_TYPE="cpu" # Change to "gpu" for GPU support
    ${TF_TYPE}-$(go env GOOS)-x86_64-1.6.0-rc1.tar.gz" |
  sudo tar -C $TARGET_DIRECTORY -xz
 ```
-Once installed youneed to get Go TF code. It will be compiled against the library you just downloaded and installed: a proper set-up of ``LIBRARY_PATH`` variables should be checked. Now that the TensorFlow C library is installed, invoke `go get` as follows to download the appropriate packages and their dependencies:
+
+- once installed you'll need to get go tensorflow code. It will be compiled
+against library you just downloaded and installed, please verify that
+you'll setup proper `LD_LIBRARY_PATH` (on Linux) or `DYLD_LIBRARY_PATH` (on OSX).
+Now that the TensorFlow C library is installed, invoke `go get` as follows to 
+download the appropriate packages:
 ```
 go get github.com/tensorflow/tensorflow/tensorflow/go
 go get github.com/tensorflow/tensorflow/tensorflow/go/op
 ```
-Download necessary dependencies for TFaaS:
+and then download the necessary dependencies for `tfaas`:
 ```
 go get github.com/vkuznet/x509proxy
 go get github.com/golang/protobuf
 go get github.com/sirupsen/logrus
 ```
-Invoke `go test` as follows to validate the TensorFlow for Go installation:
+
+- build `tfaas` Go server by running `make` and you'll get `tfaas` executable
+  which is ready to server your models.
+
+- Invoke `go test` as follows to validate the TensorFlow for Go installation:
 ```
 go test github.com/tensorflow/tensorflow/tensorflow/go
 ```
@@ -114,6 +97,19 @@ can be run via the command
 go run hello_tf.go
 ```
 and should print out an hello message with the installed TF version number. Once all this is done, you should make sure that produced executable is linked against TF library, e.g. via `ldd` command.
+
+
+## From Keras to Tensorflow
+
+This part assumes you have created and trained a model with Keras beforhand. This must be saved on local disk as a `.h5` file e.g. via `model.save('file_name.h5')`. The model must be converted to Tensorflow (TF) using the `keras_to_tensorflow` package, which can be found [here](https://github.com/vkuznet/keras_to_tensorflow.git). This package loads a trained keras model, freezes the nodes (converts all TF variables to TF constants), and saves the inference graph and weights into protobuf files. There are two different formats that a ProtoBuf can be saved in: text format (`.pbtxt` extension) files are in a human-readable form, which makes it nice for debugging and editing, but can get large when there is numerical data like weights stored in it; binary format (`.pb` extension) files are a lot smaller than their text equivalents, even though they are not as readable. In our case, reference commands that are needed are e.g.:
+```
+./keras_to_tensorflow.py -input_model_file [your_saved_model.h5] \
+                         -output_model_file [output.pb]
+./keras_to_tensorflow.py -input_model_file [your_saved_model.h5] \
+                         -output_model_file [output.pbtxt]
+```
+This file (any format) can then be used to deploy the trained model for inference. During freezing, other nodes of the network, which do not contribute the tensor that would contain the output predictions, are pruned (this results in a smaller, optimized network).
+
 
 ## Get TFaaS executables
 
