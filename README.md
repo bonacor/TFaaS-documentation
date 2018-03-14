@@ -6,7 +6,7 @@ This is not intended to be a complete, fully tested and working documentation fo
 
 ## TFaaS installation
 
-TFaaS needs to be installed. The code can be found [here](https://github.com/vkuznet/TFaaS).
+TFaaS will serve predictions for trained TF models via HTTPs. To operate it, you need to perform various steps. First one is that TFaaS needs to be installed. The code can be found [here](https://github.com/vkuznet/TFaaS).
 
 ## From Keras to Tensorflow
 
